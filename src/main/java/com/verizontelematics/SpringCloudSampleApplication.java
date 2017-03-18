@@ -1,5 +1,6 @@
 package com.verizontelematics;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,22 +25,21 @@ import com.datastax.driver.core.utils.UUIDs;
 @SpringBootApplication
 @RestController
 @EnableKafka()
-@Import({ CommonConfiguration.class, ConfigProperties.class })
+//@Import({ CommonConfiguration.class, ConfigProperties.class })
 public class SpringCloudSampleApplication implements CommandLineRunner{
 
-	 @Autowired
-     private Environment env;
+	@Autowired
+    private Environment env;
 	 
-	 @Autowired
-	 private EnvironmentsRepository repository;
-	
-	 @Autowired
-	 private  Listener listener;
+	@Autowired
+	private EnvironmentsRepository repository;
 	 
-	
-	 @RequestMapping("/valuelookup")
-	 public String env(@RequestParam("prop") String prop) {
-		 return env.getProperty(prop, "Not Found");
+	@Autowired
+	TestBean testBean;
+	 
+	@RequestMapping("/valuelookup")
+	public String env(@RequestParam("prop") String prop) {
+		return env.getProperty(prop, "Not Found");
 	}
 	
 	@RequestMapping("/test")
@@ -47,28 +47,26 @@ public class SpringCloudSampleApplication implements CommandLineRunner{
 		return env.getProperty("myvalue");
 	}
 	
+	@RequestMapping("/kafka")
+	public void kafka() {
+		testBean.send("Random UUID = " + UUID.randomUUID().toString());
+		testBean.send("The PID is " + env.getProperty("PID","Unable to Retrieve"));
+	}
+	
 
-	@RequestMapping(value="/insert")
+	@RequestMapping(value="/cassandra")
 	public String insert() {
 		this.repository.save(new Environments(UUIDs.timeBased(),"IPAddress", env.getProperty("spring.cloud.client.ipAddress","Unable to Retrieve")));
 		this.repository.save(new Environments(UUIDs.timeBased(),"PID", env.getProperty("PID","Unable to Retrieve")));
-		this.repository.save(new Environments(UUIDs.timeBased(),"ConsulValue", env.getProperty("PID") + env.getProperty("testkey","Unable to Retrieve")));
+		this.repository.save(new Environments(UUIDs.timeBased(),"ConsulValue", env.getProperty("PID") + " " +env.getProperty("testkey","Unable to Retrieve")));
 		return "Successful entries into the database.";
-		
 	}
 	
 	@Override
 	public void run(String... args) throws Exception {
-
-		TestBean testBean = new TestBean();
-		testBean.send("foo");
-
 		
-		//Listener listener = new Listener();
-	   listener.listen("foo");
-		//listener.latch.await(60, TimeUnit.SECONDS);
 	}
-
+	
 	public static void main(String[] args) {
         SpringApplication.run(SpringCloudSampleApplication.class, args);
         

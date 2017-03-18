@@ -1,11 +1,13 @@
 package com.verizontelematics;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Gary Russell
  *
  */
+@Component
 @ConfigurationProperties(prefix = "kafka")
 public class ConfigProperties {
 
@@ -29,14 +31,6 @@ public class ConfigProperties {
 
 	public void setTopic(String topic) {
 		this.topic = topic;
-	}
-
-	public String getFooTopic() {
-		return this.fooTopic;
-	}
-
-	public void setFooTopic(String fooTopic) {
-		this.fooTopic = fooTopic;
 	}
 
 }

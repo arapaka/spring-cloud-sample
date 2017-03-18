@@ -2,7 +2,9 @@ package com.verizontelematics;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TestBean {
 
 	@Autowired
@@ -12,7 +14,7 @@ public class TestBean {
 	private KafkaTemplate<String, String> template;
 
 	public void send(String foo) {
-		this.template.send(this.configProperties.getTopic(),"foo" );
+		this.template.send(this.configProperties.getTopic(),foo );
 	}
 
 }
